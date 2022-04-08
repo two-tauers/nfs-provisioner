@@ -23,7 +23,7 @@ jobs:
         git fetch --tags
         export VERSION=$(git tag -l | sort -V --reverse | head -n 1)
         export VERSION="${VERSION//v}"
-        echo "VERSION=$VERSION"
+        echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
     - name: Build the image
       run: |
