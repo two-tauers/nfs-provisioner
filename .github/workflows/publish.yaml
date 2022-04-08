@@ -20,8 +20,8 @@ jobs:
 
     - name: Get the latest tag
       run: |
-        git fetch --all
-        export VERSION=$(git ls-remote --tags --sort=committerdate | grep -o 'v.*' | sort -r | head -1)
+        git fetch --tags
+        export VERSION=$(git tag -l | sort -V --reverse | head -n 1)
         export VERSION="${VERSION//v}"
         echo "VERSION=$VERSION"
 
