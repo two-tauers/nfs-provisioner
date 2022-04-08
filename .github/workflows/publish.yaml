@@ -12,28 +12,39 @@ env:
   VERSION: Latest repo tag
 
 jobs:
-  build-image:
+  version:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Get the latest tag
+      id: latest_tag
       run: |
         git fetch --tags
         export VERSION=$(git tag -l | sort -V --reverse | head -n 1)
-        export VERSION="${VERSION//v}"
-        echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+        echo ::set-output name=value::"${VERSION//v}"
+
+    outputs:
+      version: ${{ steps.latest_tag.outputs.value }}
+
+  build-image:
+    needs:
+      - version
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
 
     - name: Build the image
       run: |
         cd docker
-        echo nfs-server:${VERSION}
-        ls -la
-        docker build . --tag ghcr.io/two-tauers/nfs-server:${VERSION} --tag ghcr.io/two-tauers/nfs-server:latest
+        echo nfs-server:${{ needs.version.outputs.version }}
+        docker build . --tag ghcr.io/two-tauers/nfs-server:${{ needs.version.outputs.version }} --tag ghcr.io/two-tauers/nfs-server:latest
 
   publish-image:
     needs:
+      - version
       - build-image
     runs-on: ubuntu-latest
     steps:
@@ -47,5 +58,5 @@ jobs:
 
     - name: Push image to GitHub Container Registry
       run: |
-        docker push ghcr.io/two-tauers/nfs-server:${VERSION}
+        docker push ghcr.io/two-tauers/nfs-server:${{ needs.version.outputs.version }}
         docker push ghcr.io/two-tauers/nfs-server:latest
