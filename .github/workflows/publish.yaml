@@ -26,9 +26,9 @@ jobs:
         echo "VERSION=$VERSION"
 
     - name: Build the image
-      working-directory: ./docker
       run: |
-        docker build . --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION} --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
+        cd docker
+        docker build . --tag ghcr.io/two-tauers/nfs-server:${VERSION} --tag ghcr.io/two-tauers/nfs-server:latest
 
   publish-image:
     needs:
@@ -45,5 +45,5 @@ jobs:
 
     - name: Push image to GitHub Container Registry
       run: |
-        docker push ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION}
-        docker push ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
+        docker push ghcr.io/two-tauers/nfs-server:${VERSION}
+        docker push ghcr.io/two-tauers/nfs-server:latest
