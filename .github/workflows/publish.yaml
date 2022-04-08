@@ -3,7 +3,8 @@ name: Publish image
 
 on:
   workflow_run:
-    workflows: ["tag-repo"]
+    workflows:
+      - tag-repo
     types:
       - completed
 
@@ -24,11 +25,13 @@ jobs:
         echo "VERSION=$VERSION"
 
     - name: Build the image
+      working-directory: ./docker
       run: |
         docker build .  --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION} --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
 
   publish-image:
-    needs: ["build-image"]
+    needs:
+      - build-image
     runs-on: ubuntu-latest
     steps:
 
