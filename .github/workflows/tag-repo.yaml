@@ -1,5 +1,5 @@
 ---
-name: Bump version
+name: tag-repo
 
 on:  # yamllint disable-line
   push:

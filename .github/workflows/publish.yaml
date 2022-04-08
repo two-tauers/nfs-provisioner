@@ -1,0 +1,45 @@
+---
+name: Publish image
+
+on:
+  workflow_run:
+    workflows: ["tag-repo"]
+    types:
+      - completed
+
+env:
+  VERSION: Latest repo tag
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get the latest tag
+      run: |
+        export VERSION=$(git ls-remote --tags --sort=committerdate | grep -o 'v.*' | sort -r | head -1)
+        export VERSION="${VERSION//v}"
+        echo "VERSION=$VERSION"
+
+    - name: Build the image
+      run: |
+        docker build .  --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION} --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
+
+  publish-image:
+    needs: ["build-image"]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push image to GitHub Container Registry
+      run: |
+        docker push ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION}
+        docker push ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
