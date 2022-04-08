@@ -20,6 +20,7 @@ jobs:
 
     - name: Get the latest tag
       run: |
+        git fetch --all
         export VERSION=$(git ls-remote --tags --sort=committerdate | grep -o 'v.*' | sort -r | head -1)
         export VERSION="${VERSION//v}"
         echo "VERSION=$VERSION"
@@ -27,7 +28,7 @@ jobs:
     - name: Build the image
       working-directory: ./docker
       run: |
-        docker build .  --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION} --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
+        docker build . --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:${VERSION} --tag ghcr.io/${GITHUB_ACTOR}/nfs-server:latest
 
   publish-image:
     needs:
