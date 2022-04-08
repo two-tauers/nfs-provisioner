@@ -8,9 +8,6 @@ on:
     types:
       - completed
 
-env:
-  VERSION: Latest repo tag
-
 jobs:
   version:
     runs-on: ubuntu-latest
@@ -23,6 +20,7 @@ jobs:
       run: |
         git fetch --tags
         export VERSION=$(git tag -l | sort -V --reverse | head -n 1)
+        echo "Latest tag: ${VERSION}"
         echo ::set-output name=value::"${VERSION//v}"
 
     outputs:
@@ -39,6 +37,7 @@ jobs:
     - name: Build the image
       working-directory: ./docker
       run: |
+        docker buildx version
         docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --tag ghcr.io/two-tauers/nfs-server:${{ needs.version.outputs.version }} --tag ghcr.io/two-tauers/nfs-server:latest
 
     - name: Login to GitHub Container Registry
