@@ -1,0 +1,26 @@
+---
+namespace: storage
+nameOverride:
+
+nfs-server:
+  clusterIP: 10.43.240.153
+
+  image: ghcr.io/two-tauers/nfs-server
+  tag: latest
+  pullPolicy: IfNotPresent
+  
+  nodeSelector:
+    storage: enabled
+  
+  hostPath: /storage
+
+  labels:
+    app: nfs-server
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 1000m
+      memory: 500Mi

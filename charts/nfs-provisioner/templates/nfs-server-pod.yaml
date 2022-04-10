@@ -1,0 +1,34 @@
+---
+{{- with index .Values "nfs-server" }}
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-server-pod
+  labels: {{- .labels | toYaml | nindent 8 }}
+spec:
+  containers:
+    - name: nfs-server-container
+      image: {{ .image }}:{{ .tag }}
+      securityContext:
+        privileged: true
+      args:
+        # Pass the paths to share to the Docker image
+        - {{ .hostPath }}
+      volumeMounts:
+      - name: storage-mount
+        mountPath: {{ .hostPath }}
+      resources:
+        requests:
+          cpu: {{ .resources.requests.cpu }}
+          memory: {{ .resources.requests.memory }}
+        limits:
+          cpu: {{ .resources.limits.cpu }}
+          memory: {{ .resources.limits.memory }}
+  volumes:
+  - name: storage-mount
+    hostPath:
+      path: {{ .hostPath }}
+  nodeSelector: {{- .nodeSelector | toYaml | nindent 8 }}
+ 
+{{- end }}
