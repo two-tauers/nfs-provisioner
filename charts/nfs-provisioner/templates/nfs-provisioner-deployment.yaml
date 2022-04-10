@@ -5,8 +5,7 @@ metadata:
   name: nfs-client-provisioner
   labels:
     app: nfs-client-provisioner
-  # replace with namespace where provisioner is deployed
-  namespace: storage
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   strategy:
@@ -19,22 +18,22 @@ spec:
       labels:
         app: nfs-client-provisioner
     spec:
-      serviceAccountName: nfs-client-provisioner
+      serviceAccountName: {{ .Values.nfsProvisioner.rbac.accountName }}
       containers:
         - name: nfs-client-provisioner
-          image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
+          image: {{ .Values.nfsProvisioner.image }}:{{ .Values.nfsProvisioner.tag }}
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
           env:
             - name: PROVISIONER_NAME
-              value: k8s-sigs.io/nfs-subdir-external-provisioner
+              value: {{ .Values.nfsProvisioner.name }}
             - name: NFS_SERVER
-              value: 10.43.240.153
+              value:  {{ .Values.nfsServer.clusterIP }}
             - name: NFS_PATH
               value: /
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.43.240.153
+            server: {{ .Values.nfsServer.clusterIP }}
             path: /

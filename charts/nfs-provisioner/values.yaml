@@ -1,0 +1,30 @@
+---
+namespace: storage
+nameOverride:
+
+nfsServer:
+  clusterIP: 10.43.240.153
+  hostPath: /storage
+  nodeSelector:
+    storage: enabled
+
+  image: ghcr.io/two-tauers/nfs-server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 1000m
+      memory: 500Mi
+
+nfsProvisioner:
+  name: k8s-sigs.io/nfs-subdir-external-provisioner
+
+  image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner
+  tag: v4.0.2
+
+  rbac:
+    accountName: nfs-cluster-provisioner
