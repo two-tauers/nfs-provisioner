@@ -1,11 +1,11 @@
 ---
-{{- with index .Values "nfs-server" }}
+{{- with index .Values "nfsServer" }}
 
 kind: Pod
 apiVersion: v1
 metadata:
   name: nfs-server-pod
-  labels: {{- .labels | toYaml | nindent 8 }}
+  labels: {{- template "nfs_server_selector" }}
 spec:
   containers:
     - name: nfs-server-container
@@ -13,7 +13,6 @@ spec:
       securityContext:
         privileged: true
       args:
-        # Pass the paths to share to the Docker image
         - {{ .hostPath }}
       volumeMounts:
       - name: storage-mount

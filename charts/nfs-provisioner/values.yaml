@@ -2,7 +2,7 @@
 namespace: storage
 nameOverride:
 
-nfs-server:
+nfsServer:
   clusterIP: 10.43.240.153
 
   image: ghcr.io/two-tauers/nfs-server
@@ -13,9 +13,6 @@ nfs-server:
     storage: enabled
   
   hostPath: /storage
-
-  labels:
-    app: nfs-server
 
   resources:
     requests:
