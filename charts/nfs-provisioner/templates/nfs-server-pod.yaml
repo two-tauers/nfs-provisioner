@@ -1,33 +1,44 @@
 ---
 {{- with index .Values "nfsServer" }}
 
-kind: Pod
-apiVersion: v1
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: nfs-server-pod
   labels: {{- template "nfs_server_selector" }}
 spec:
-  containers:
-    - name: nfs-server-container
-      image: {{ .image }}:{{ .tag }}
-      securityContext:
-        privileged: true
-      args:
-        - {{ .hostPath }}
-      volumeMounts:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- template "nfs_server_selector" }}
+  template:
+    metadata:
+      labels:
+        {{- template "nfs_server_selector" }}
+    spec:
+      nodeSelector: {{- .nodeSelector | toYaml | nindent 8 }}
+      containers:
+        - name: nfs-server-container
+          image: {{ .image }}:{{ .tag }}
+          securityContext:
+            privileged: true
+          args:
+            - {{ .hostPath }}
+          volumeMounts:
+          - name: storage-mount
+            mountPath: {{ .hostPath }}
+          resources:
+            requests:
+              cpu: {{ .resources.requests.cpu }}
+              memory: {{ .resources.requests.memory }}
+            limits:
+              cpu: {{ .resources.limits.cpu }}
+              memory: {{ .resources.limits.memory }}
+      volumes:
       - name: storage-mount
-        mountPath: {{ .hostPath }}
-      resources:
-        requests:
-          cpu: {{ .resources.requests.cpu }}
-          memory: {{ .resources.requests.memory }}
-        limits:
-          cpu: {{ .resources.limits.cpu }}
-          memory: {{ .resources.limits.memory }}
-  volumes:
-  - name: storage-mount
-    hostPath:
-      path: {{ .hostPath }}
-  nodeSelector: {{- .nodeSelector | toYaml | nindent 8 }}
+        hostPath:
+          path: {{ .hostPath }}
  
 {{- end }}
