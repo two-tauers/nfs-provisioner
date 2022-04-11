@@ -41,7 +41,18 @@ jobs:
         wget -O current_index.yaml https://two-tauers.github.io/helm-charts/index.yaml
         helm repo index . --merge current_index.yaml
 
-    - name: Pushes test file
+    - name: Publish chart version
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source_file: nfs-provisioner-${{ needs.version.outputs.version }}.tgz
+        destination_repo: two-tauers/helm-charts
+        user_name: timberhill
+        commit_message: "Publishing helm chart: chart=nfs-provisioner version=${{ needs.version.outputs.version }} nfs-provisioner-${{ needs.version.outputs.version }}.tgz"
+        destination_branch: gh-pages
+
+    - name: Update index.yaml
       uses: dmnemec/copy_file_to_another_repo_action@main
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
