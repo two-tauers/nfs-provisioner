@@ -9,7 +9,7 @@ nfsServer:
     storage: enabled
 
   image: ghcr.io/two-tauers/nfs-server
-  tag: latest
+  tag: ""
   pullPolicy: IfNotPresent
 
   resources:
