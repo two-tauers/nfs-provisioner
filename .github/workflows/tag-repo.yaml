@@ -3,6 +3,8 @@ name: tag-repo
 
 on:
   push:
+    paths-ignore:
+      - "README.md"
     branches:
       - main
 
