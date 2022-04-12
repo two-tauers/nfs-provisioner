@@ -1,6 +1,4 @@
 ---
-{{- with index .Values "nfsServer" }}
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,27 +16,25 @@ spec:
       labels:
         {{- template "nfs_server_selector" }}
     spec:
-      nodeSelector: {{- .nodeSelector | toYaml | nindent 8 }}
+      nodeSelector: {{- .Values.nfsServer.nodeSelector | toYaml | nindent 8 }}
       containers:
         - name: nfs-server-container
-          image: {{ .image }}:{{ .tag }}
+          image: {{ .Values.nfsServer.image }}:{{ .Values.nfsServer.tag | default .Chart.AppVersion }}
           securityContext:
             privileged: true
           args:
-            - {{ .hostPath }}
+            - {{ .Values.nfsServer.hostPath }}
           volumeMounts:
           - name: storage-mount
-            mountPath: {{ .hostPath }}
+            mountPath: {{ .Values.nfsServer.hostPath }}
           resources:
             requests:
-              cpu: {{ .resources.requests.cpu }}
-              memory: {{ .resources.requests.memory }}
+              cpu: {{ .Values.nfsServer.resources.requests.cpu }}
+              memory: {{ .Values.nfsServer.resources.requests.memory }}
             limits:
-              cpu: {{ .resources.limits.cpu }}
-              memory: {{ .resources.limits.memory }}
+              cpu: {{ .Values.nfsServer.resources.limits.cpu }}
+              memory: {{ .Values.nfsServer.resources.limits.memory }}
       volumes:
       - name: storage-mount
         hostPath:
-          path: {{ .hostPath }}
- 
-{{- end }}
+          path: {{ .Values.nfsServer.hostPath }}
