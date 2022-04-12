@@ -3,6 +3,8 @@ name: Publish helm chart
 
 on:
   workflow_run:
+    paths-ignore:
+      - "README.md"
     workflows:
       - tag-repo
     types:
