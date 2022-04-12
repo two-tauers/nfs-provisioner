@@ -1,7 +1,7 @@
 ---
 name: tag-repo
 
-on:  # yamllint disable-line
+on:
   push:
     branches:
       - main

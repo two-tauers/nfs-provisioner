@@ -2,11 +2,11 @@
 name: Publish image
 
 on:
-  workflow_run:
-    workflows:
-      - tag-repo
-    types:
-      - completed
+  push:
+    paths: 
+      - "docker/**"
+    branches:
+      - main
 
 jobs:
   version:
@@ -18,15 +18,14 @@ jobs:
     - name: Get the latest tag
       id: latest_tag
       run: |
-        git fetch --tags
-        export VERSION=$(git tag -l | sort -V --reverse | head -n 1)
-        echo "Latest tag: ${VERSION}"
+        export VERSION=$(awk '/appVersion:/ {print $2}' Chart.yaml | tr -d '"')
+        echo "appVersion: ${VERSION}"
         echo ::set-output name=value::"${VERSION//v}"
 
     outputs:
       version: ${{ steps.latest_tag.outputs.value }}
 
-  publish-image:
+  publish:
     runs-on: ubuntu-latest
     needs:
       - version
@@ -48,6 +47,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push
-      working-directory: ./docker
+      working-directory: ./docker/nfs-server
       run: |
         docker buildx build . --platform linux/amd64,linux/arm64,linux/arm/v7 --tag ghcr.io/two-tauers/nfs-server:${{ needs.version.outputs.version }} --tag ghcr.io/two-tauers/nfs-server:latest --push

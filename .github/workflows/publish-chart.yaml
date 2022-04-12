@@ -1,0 +1,64 @@
+---
+name: Publish helm chart
+
+on:
+  workflow_run:
+    workflows:
+      - tag-repo
+    types:
+      - completed
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get the latest tag
+      id: latest_tag
+      run: |
+        git fetch --tags
+        export VERSION=$(git tag -l | sort -V --reverse | head -n 1)
+        echo "Latest tag: ${VERSION}"
+        echo ::set-output name=value::"${VERSION//v}"
+
+    outputs:
+      version: ${{ steps.latest_tag.outputs.value }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - version
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Package chart
+      run: |
+        helm package . --version ${{ needs.version.outputs.version }}
+        wget -O current_index.yaml https://two-tauers.github.io/helm-charts/index.yaml
+        helm repo index . --merge current_index.yaml
+
+    - name: Publish chart version
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source_file: nfs-provisioner-${{ needs.version.outputs.version }}.tgz
+        destination_repo: two-tauers/helm-charts
+        user_name: timberhill
+        commit_message: "Publishing helm chart: chart=nfs-provisioner version=${{ needs.version.outputs.version }} nfs-provisioner-${{ needs.version.outputs.version }}.tgz"
+        destination_branch: gh-pages
+
+    - name: Update index.yaml
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source_file: index.yaml
+        destination_repo: two-tauers/helm-charts
+        user_name: timberhill
+        commit_message: "Publishing helm chart: chart=nfs-provisioner version=${{ needs.version.outputs.version }} file=index.yaml"
+        destination_branch: gh-pages
