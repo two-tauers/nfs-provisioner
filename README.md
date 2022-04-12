@@ -14,7 +14,8 @@ Storage mounted on one of the node.
 kubectl label node sauron storage=enabled
 ```
 
-The node selector can be changed in `values.yaml`.
+Default path on the node that NFS server will be sharing is `/storage`.
+That and the node selector can be customised in `values.yaml`.
 
 2. Deploy the helm chart
 
@@ -24,6 +25,14 @@ helm install nfs-provisioner two-tauers/nfs-provisioner --namespace storage --cr
 ```
 
 The chart will deploy nfs-server to share the storage across the cluster and a storage class `managed-nfs-storage` that uses it.
+
+### From this repo
+
+Alternatively, install from this repo:
+
+```
+helm install nfs-provisioner . --namespace storage --create-namespace
+```
 
 ## Uninstall
 
