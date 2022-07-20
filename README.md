@@ -1,3 +1,5 @@
+Moved to https://github.com/two-tauers/helm-charts/tree/main/charts/nfs-provisioner
+
 # nfs-provisioner
 
 NFS storage provisioner for a kubernetes cluster, using a hard drive mounted on a node.
